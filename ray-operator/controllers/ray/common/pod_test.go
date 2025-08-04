@@ -1403,7 +1403,7 @@ func TestSetMissingRayStartParamsMetricsExportPort(t *testing.T) {
 	ctx := context.Background()
 
 	// The metrics-export-port option is automatically injected into RayStartParams with a default value of DefaultMetricsPort for both head and workers.
-	// Users can manually set the metrics-export-port option to customize the metrics export port and scrape Ray’s metrics using Prometheus via <ip>:<custom metrics export port>.
+	// Users can manually set the metrics-export-port option to customize the metrics export port and scrape Ray's metrics using Prometheus via <ip>:<custom metrics export port>.
 	// See https://github.com/ray-project/kuberay/pull/954 for more details.
 
 	headPort := "6379"
@@ -1695,6 +1695,24 @@ func TestGenerateRayStartCommand(t *testing.T) {
 		nodeType       rayv1.RayNodeType
 		resource       corev1.ResourceRequirements
 	}{
+		{
+			name:     "HeadNode with custom resources",
+			nodeType: rayv1.HeadNode,
+			rayStartParams: map[string]string{
+				"resources": `'{"custom-rec1": 1, "custom-rec2": 10}'`,
+			},
+			resource: corev1.ResourceRequirements{},
+			expected: `ray start --head  --resources={"custom-rec1": 1, "custom-rec2": 10} `,
+		},
+		{
+			name:     "HeadNode with double-quoted custom resources",
+			nodeType: rayv1.HeadNode,
+			rayStartParams: map[string]string{
+				"resources": `"{"custom-rec1": 1, "custom-rec2": 10}"`,
+			},
+			resource: corev1.ResourceRequirements{},
+			expected: `ray start --head  --resources={"custom-rec1": 1, "custom-rec2": 10} `,
+		},
 		{
 			name:           "WorkerNode with GPU",
 			nodeType:       rayv1.WorkerNode,

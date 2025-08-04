@@ -932,7 +932,12 @@ func convertParamMap(rayStartParams map[string]string) (s string) {
 	specialParameterOptions := []string{"log-color", "include-dashboard"}
 	for _, option := range keys {
 		argument := rayStartParams[option]
-		if utils.Contains([]string{"true", "false"}, strings.ToLower(argument)) && !utils.Contains(specialParameterOptions, option) {
+		if option == "resources" {
+			// Special handling for resources parameter
+			// Remove any surrounding quotes and escape characters
+			argument = strings.Trim(argument, "'\"")
+			fmt.Fprintf(flags, " --%s=%s ", option, argument)
+		} else if utils.Contains([]string{"true", "false"}, strings.ToLower(argument)) && !utils.Contains(specialParameterOptions, option) {
 			// booleanOptions: do not require any argument. Essentially represent boolean on-off switches.
 			if strings.ToLower(argument) == "true" {
 				fmt.Fprintf(flags, " --%s ", option)
